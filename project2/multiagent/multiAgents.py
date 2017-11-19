@@ -165,7 +165,20 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.getNumAgents():
             Returns the total number of agents in the game
         """
+        """
+        #TODO: hard part
+        max(state, 0)
+        exp(0,1)
+        exp(0,2)
+        max(state, 1)
+        exp(1,1)
+        exp(1,2)
+        evaluation
+        """
+        #https://github.com/QiWang19/AI_Project_pacman/blob/master/project2/multiagent/multiAgents.py
+
         "*** YOUR CODE HERE ***"
+
         PACMAN = 0
 
         def max_agent(state, depth):
