@@ -75,7 +75,43 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        oldFoodList = (currentGameState.getFood()).asList()
+        totalPts = 0;
+        #compare the distance from food to pacman's new pos in increasing order
+        #TODO cmp change
+        oldFoodList.sort(lambda f1, f2: ManhDistCmp(newPos, f1, f2))
+        foodPts = manhattanDistance(newPos, oldFoodList[0])
+        if foodPts == 0:
+            totalPts = totalPts + 2
+        else:
+            totalPts = totalPts + 1.0 / foodPts
+
+        ghostsPos = []
+        for ghost in newGhostStates:
+            ghostsPos.append(ghost.getPosition())
+        ghostPts = 0
+        if len(ghostsPos) != 0:
+            ghostsPos.sort(lambda g1, g2: ManhDistCmp(newPos, g1, g2))
+        if manhattanDistance(newPos, ghostsPos[0]) == 0:
+            return -999
+        else:
+            ghostPts = -3.0 / manhattanDistance(newPos, ghostsPos[0])
+        totalPts = totalPts + ghostPts
+
+        if action == Directions.STOP:
+           totalPts = totalPts - 1
+        #successorGameState.setScore(totalPts)
+
+        return totalPts
+
+def ManhDistCmp(pos, p1, p2):
+    diff = manhattanDistance(pos, p1) - manhattanDistance(pos, p2)
+    if diff < 0:
+        return -1
+    elif diff > 0:
+        return 1
+    else:
+        return 0
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -130,7 +166,53 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        PACMAN = 0
+
+        def max_agent(state, depth):
+            if state.isWin() or state.isLose():
+                return state.getScore()
+            actions = state.getLegalActions(PACMAN)
+            best_score = float("-inf")
+            score = best_score
+            best_action = Directions.STOP
+            for action in actions:
+                score = exp_agent(state.generateSuccessor(PACMAN, action), depth, 1)
+                if score > best_score:
+                    best_score = score
+                    best_action = action
+            if depth == 0:
+                return best_action
+            else:
+                return best_score
+
+        def exp_agent(state, depth, ghost):
+            if state.isLose() or state.isWin():
+                return state.getScore()
+            next_ghost = ghost + 1
+            if ghost == state.getNumAgents() - 1:
+                # Although I call this variable next_ghost, at this point we are referring to a pacman agent.
+                # I never changed the variable name and now I feel bad. That's why I am writing this guilty comment :(
+                next_ghost = PACMAN
+            actions = state.getLegalActions(ghost)
+            best_score = float("inf")
+            score = best_score
+            for action in actions:
+                if next_ghost == PACMAN:  # We are on the last ghost and it will be Pacman's turn next.
+                    if depth == self.depth - 1:
+                        score = self.evaluationFunction(state.generateSuccessor(ghost, action))
+                    else:
+                        score = max_agent(state.generateSuccessor(ghost, action), depth + 1)
+                else:
+                    score = exp_agent(state.generateSuccessor(ghost, action), depth, next_ghost)
+                if score < best_score:
+                    best_score = score
+            return best_score
+
+        return max_agent(gameState, 0)
+        #util.raiseNotDefined()
+
+
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
