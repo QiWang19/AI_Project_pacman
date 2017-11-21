@@ -175,7 +175,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         exp(1,2)
         evaluation
         """
-        #https://github.com/QiWang19/AI_Project_pacman/blob/master/project2/multiagent/multiAgents.py
+        #https://github.com/lightninglu10/pacman-minimax/blob/master/multiAgents.py
 
         "*** YOUR CODE HERE ***"
 
@@ -232,11 +232,58 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       Your minimax agent with alpha-beta pruning (question 3)
     """
 
+
     def getAction(self, gameState):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
+
         "*** YOUR CODE HERE ***"
+        PACMAN = 0;
+        def max_agent(state, depth, alpha, beta):
+            if state.isWin() or state.isLose():
+                return state.getScore()
+            actions = state.getLegalActions(PACMAN)
+            best_score = float("-inf")
+            score = best_score
+            best_action = Directions.STOP
+            for action in actions:
+                score = min_agent(state.generateSuccessor(PACMAN, action), depth, 1, alpha, beta)
+                if score > best_score:
+                    best_score = score
+                    best_action = action
+                alpha = max(alpha, best_score)
+                if best_score > beta:
+                    return best_score
+            if depth == 0:
+                return best_action
+            else:
+                return best_score
+        def min_agent(state, depth, ghost, alpha, beta):
+            if state.isWin() or state.isLose():
+                return state.getScore()
+            next_ghost = ghost + 1
+            if ghost == state.getNumAgents() - 1:
+                next_ghost = PACMAN
+            actions = state.getLegalActions(ghost)
+            best_score = float("inf")
+            score = best_score
+            for action in actions:
+                if next_ghost == PACMAN:
+                    if depth == self.depth - 1:
+                        score = self.evaluationFunction(state.generateSuccessor(ghost, action))
+                    else:
+                        score = max_agent(state.generateSuccessor(ghost, action), depth + 1, alpha, beta)
+                else:
+                    score = min_agent(state.generateSuccessor(ghost, action), depth, next_ghost, alpha, beta)
+                if score < best_score:
+                    best_score = score
+                beta = min(beta, best_score)
+                if best_score < alpha:
+                    return best_score
+            return best_score
+        return  max_agent(gameState, 0, float("-inf"), float("inf"))
+
         util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
