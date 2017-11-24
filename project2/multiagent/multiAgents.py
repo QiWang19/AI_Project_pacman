@@ -183,6 +183,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         def max_agent(state, depth):
             if state.isWin() or state.isLose():
+                #define in pacman.py
                 return state.getScore()
             actions = state.getLegalActions(PACMAN)
             best_score = float("-inf")
@@ -286,6 +287,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         util.raiseNotDefined()
 
+#https://web.uvic.ca/~maryam/AISpring94/Slides/06_ExpectimaxSearch.pdf
+#Page9 What probabilities to use  a distribution to assign probabilities to opponent-actions
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
@@ -299,7 +302,69 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        numAgents = gameState.getNumAgents()
+        totalDepth = self.depth * numAgents  # 1 ply means each agent moves one time
+
+        # remove STOP from pacman's action list if it exists in the list
+        actions = gameState.getLegalActions(0)
+        if Directions.STOP in actions:
+            actions.remove(Directions.STOP)
+
+        # get a list pacman's successor states
+        newStates = []
+        for action in actions:
+            newStates.append(gameState.generateSuccessor(0, action))
+
+        # get a list of values of pacman's successor states
+        vals = []
+        for nextState in newStates:
+            vals.append(self.ExpectimaxValue(nextState, 1, numAgents, totalDepth - 1))
+
+        # find the largest value(s) the pacman can get
+        # among all the successor states
+        maxVal = max(vals)
+        bestIndices = [idx for idx in range(len(vals)) if vals[idx] == maxVal]
+
+        # return the action that will let pacman get
+        # the largest value; randomly pick one action if
+        # there are multiple actions with the greatest value
+        chosenIdx = random.choice(bestIndices)
+        return actions[chosenIdx]
+
+    def ExpectimaxValue(self, gameState, agentIdx, numAgents, depth):
+        # return the value of current state using evaluationFunction
+        # if the current state is a terminal state (win/lose) or if
+        # the function hits the specified depth
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState)
+
+        actions = gameState.getLegalActions(agentIdx)
+        # remove STOP from actions list if the agent is pacman
+        if agentIdx == 0:
+            if Directions.STOP in actions:
+                actions.remove(Directions.STOP)
+
+        # get a list of successor states
+        newStates = []
+        for action in actions:
+            newStates.append(gameState.generateSuccessor(agentIdx, action))
+
+        # evalue the successor states by recursively calling this function
+        # until it is terminal state or depth is 0
+        vals = []
+        for nextState in newStates:
+            vals.append(self.ExpectimaxValue(nextState, (agentIdx + 1) % numAgents, numAgents, depth - 1))
+
+        # if the agent is pacman, return the maximum value;
+        # otherwise, return the expectation according to
+        # how the ghosts act (assume the ghost has equal chance
+        # to choose each action among all the legal actions)
+        if agentIdx == 0:
+            return max(vals)
+        else:
+            return sum(vals) / len(actions)
+
+        #util.raiseNotDefined()
 
 def betterEvaluationFunction(currentGameState):
     """
