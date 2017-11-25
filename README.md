@@ -1,28 +1,22 @@
 # AI_Project_pacman
-Minimax:
+Minimax: iteration process
 
-iteration process
+        (adversrial search) pacman->max agent, ghost-> min agent
 
-(adversrial search) pacman->max agent, ghost-> min agent
+        tree structure: one layer max agent, several min agent(number of ghosts)
 
-tree structure: one layer max agent, several min agent(number of ghosts)
+alpha-beta prun: detail process link:https://www.youtube.com/watch?v=xBXHtz4Gbdo&t=351s
 
-alpha-beta prun:
+                compare and update the alpha, beta
 
-detail process link:https://www.youtube.com/watch?v=xBXHtz4Gbdo&t=351s
+                alpha-max value
 
-compare and update the alpha, beta
+                beta-min value
 
-alpha-max value
+Expectimax: adversary is not that worse as min agent. Use weght to calculate the value of expect agent.
 
-beta-min value
+            max agent got the max of them.
 
-Expectimax:
-
-adversary is not that worse as min agent. Use weght to calculate the value of expect agent.
-
-max agent got the max of them.
-
-can not prun
+            can not prun
 
 value-iteration:
