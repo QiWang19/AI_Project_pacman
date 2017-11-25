@@ -33,11 +33,14 @@ can not prun
 ## Q-Learning
 
 Don't know T, R; Different update q value from MDP
-How to explore: freedy
+
+How to explore: greedy
+
 Keep a table of all a-values
 
 ## Approximate Q-Learning: Generalize
 
 can not explore every state; Compute q value using features and their weights;
+
 update the weights;
 
