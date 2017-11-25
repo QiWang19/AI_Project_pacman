@@ -34,8 +34,10 @@ can not prun
 
 Don't know T, R;
 How to explore: freedy
+Keep a table of all a-values
 
-## Approximate Q-Learning
+## Approximate Q-Learning: Generalize
 
-can not explore every state
+can not explore every state; Compute q value using features and their weights;
+update the weights;
 
