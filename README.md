@@ -28,3 +28,14 @@ can not prun
 
 ## value-iteration:
 
+## MDP: Bellman equation
+
+## Q-Learning
+
+Don't know T, R;
+How to explore: freedy
+
+## Approximate Q-Learning
+
+can not explore every state
+
