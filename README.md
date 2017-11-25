@@ -32,7 +32,7 @@ can not prun
 
 ## Q-Learning
 
-Don't know T, R;
+Don't know T, R; Different update q value from MDP
 How to explore: freedy
 Keep a table of all a-values
 
