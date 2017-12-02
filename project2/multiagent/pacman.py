@@ -671,7 +671,13 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
     #global countformoves
     print "count for moves is %s" % multiAgents.countformoves
     print "elapsed %s"% (time.clock() - start)
-
+    f = open('results.txt', 'a')
+    f.write(str(sum(scores) / float(len(scores))) + ',' +
+            str(wins.count(True)) + ',' +
+            str(multiAgents.countformoves) + ',' +
+            str(time.clock() - start))
+    f.write('\n')
+    f.close()
     return games
 
 if __name__ == '__main__':

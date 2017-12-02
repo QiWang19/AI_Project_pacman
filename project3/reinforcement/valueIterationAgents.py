@@ -47,9 +47,9 @@ class ValueIterationAgent(ValueEstimationAgent):
         #https://github.com/yifeng96/188searchproject/blob/4aedd9cab06694be40f932a6771910325a75257f/proj3/valueIterationAgents.py
         "*** YOUR CODE HERE ***"
 
-        self.tmpValues = util.Counter();
+        self.tmpValues = util.Counter()
         iterationsCompleted = 0
-        startState = mdp.getStartState();
+        startState = mdp.getStartState()
         while (iterationsCompleted < iterations):
             for state in mdp.getStates():
                 self.computeValue(mdp, state, discount)

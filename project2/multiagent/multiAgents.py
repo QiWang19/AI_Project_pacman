@@ -144,7 +144,7 @@ class MultiAgentSearchAgent(Agent):
         self.index = 0 # Pacman is always agent index 0
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
-
+countformoves = 0
 class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
@@ -184,6 +184,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         PACMAN = 0
 
         def max_agent(state, depth):
+            global countformoves
             if state.isWin() or state.isLose():
                 #define in pacman.py
                 return state.getScore()
@@ -197,6 +198,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                     best_score = score
                     best_action = action
             if depth == 0:
+                countformoves = countformoves + 1
                 return best_action
             else:
                 return best_score
@@ -291,7 +293,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
 #https://web.uvic.ca/~maryam/AISpring94/Slides/06_ExpectimaxSearch.pdf
 #Page9 What probabilities to use  a distribution to assign probabilities to opponent-actions
-countformoves = 0
+
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
