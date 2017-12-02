@@ -49,6 +49,9 @@ from util import manhattanDistance
 import util, layout
 import sys, types, time, random, os
 
+import multiAgents
+#import time
+
 ###################################################
 # YOUR INTERFACE TO THE PACMAN WORLD: A GameState #
 ###################################################
@@ -627,6 +630,8 @@ def replayGame( layout, actions, display ):
     display.finish()
 
 def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0, catchExceptions=False, timeout=30 ):
+    import time
+    start = time.clock()
     import __main__
     __main__.__dict__['_display'] = display
 
@@ -663,6 +668,9 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
         print 'Scores:       ', ', '.join([str(score) for score in scores])
         print 'Win Rate:      %d/%d (%.2f)' % (wins.count(True), len(wins), winRate)
         print 'Record:       ', ', '.join([ ['Loss', 'Win'][int(w)] for w in wins])
+    #global countformoves
+    print "count for moves is %s" % multiAgents.countformoves
+    print "elapsed %s"% (time.clock() - start)
 
     return games
 
