@@ -244,8 +244,10 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
 
         "*** YOUR CODE HERE ***"
+
         PACMAN = 0
         def max_agent(state, depth, alpha, beta):
+            global countformoves
             if state.isWin() or state.isLose():
                 return state.getScore()
             actions = state.getLegalActions(PACMAN)
@@ -261,6 +263,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 if best_score > beta:
                     return best_score
             if depth == 0:
+                countformoves = countformoves + 1
                 return best_action
             else:
                 return best_score
