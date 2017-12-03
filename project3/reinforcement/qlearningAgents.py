@@ -209,7 +209,7 @@ class ApproximateQAgent(PacmanQAgent):
             for key in keys:
                 self.weightDict[key] = 0
 
-        correction = (reward + self.discount * self.getValue(nextState)) - self.getQValue(state, action)
+        correction = (reward + self.discountgamma * self.getValue(nextState)) - self.getQValue(state, action)
         features = self.featExtractor.getFeatures(state, action)
         for key in keys:
             self.weightDict[key] = self.weightDict[key] + (self.alpha * correction * features[key])

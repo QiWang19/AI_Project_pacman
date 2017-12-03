@@ -18,7 +18,8 @@ from game import Directions
 import random, util
 
 from game import Agent
-
+import datetime
+import random, util, math
 import pacman
 
 class ReflexAgent(Agent):
@@ -232,6 +233,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
 
 
+
+
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
@@ -378,7 +381,151 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             return sum(vals) / len(actions)
 
         #util.raiseNotDefined()
+#http://www.teach.cs.toronto.edu/~csc384h/summer/
+#https://github.com/Syugen/pacman/blob/6dd8633088991bf66667b472aeffa05c4b660725/pacman/multiAgents.py
+# add this class to multiAgents.py
+# the following class corrects and replaces the previous MonteCarloAgent class released on March 19
+# the only differences between this version, and the one released on March 19 are:
+#       * line 37 of this file, "if self.Q" has been replaced by "if Q"
+#       * line 45 of this file, where "assert( Q == 'contestClassic' )" has been added
+class MonteCarloAgent(MultiAgentSearchAgent):
+    """
+        Your monte-carlo agent (question 5)
+        ***UCT = MCTS + UBC1***
+        TODO:
+        1) Complete getAction to return the best action based on UCT.
+        2) Complete runSimulation to simulate moves using UCT.
+        3) Complete final, which updates the value of each of the states visited during a play of the game.
 
+        * If you want to add more functions to further modularize your implementation, feel free to.
+        * Make sure that your dictionaries are implemented in the following way:
+            -> Keys are game states.
+            -> Value are integers. When performing division (i.e. wins/plays) don't forget to convert to float.
+      """
+
+    def __init__(self, evalFn='mctsEvalFunction', depth='-1', timeout='40', numTraining=100, C='2', Q=None):
+        # This is where you set C, the depth, and the evaluation function for the section "Enhancements for MCTS agent".
+        if Q:
+            if Q == 'minimaxClassic':
+                pass
+            elif Q == 'testClassic':
+                pass
+            elif Q == 'smallClassic':
+                pass
+            else:  # Q == 'contestClassic'
+                assert (Q == 'contestClassic')
+                pass
+        # Otherwise, your agent will default to these values.
+        else:
+            self.C = int(C)
+            # If using depth-limited UCT, need to set a heuristic evaluation function.
+            if int(depth) > 0:
+                evalFn = 'scoreEvaluationFunction'
+        self.states = []
+        self.plays = dict()
+        self.wins = dict()
+        self.calculation_time = datetime.timedelta(milliseconds=int(timeout))
+
+        self.numTraining = numTraining
+
+        "*** YOUR CODE HERE ***"
+
+        MultiAgentSearchAgent.__init__(self, evalFn, depth)
+
+    def update(self, state):
+        """
+        You do not need to modify this function. This function is called every time an agent makes a move.
+        """
+        self.states.append(state)
+
+    def getAction(self, gameState):
+        """
+        Returns the best action using UCT. Calls runSimulation to update nodes
+        in its wins and plays dictionary, and returns best successor of gameState.
+        """
+        "*** YOUR CODE HERE ***"
+        games = 0
+        begin = datetime.datetime.utcnow()
+        while datetime.datetime.utcnow() - begin < self.calculation_time:
+            games += 1
+            self.run_simulation(gameState)
+        legal = gameState.getLegalActions(0)
+        successors = [(gameState.generateSuccessor(0, action), action) for action in legal]
+        successors = [(successor, action) for successor, action in successors
+                      if successor in self.plays and self.plays[successor] != 0]
+        values = list((1.0 * self.wins[successor] / self.plays[successor], action)
+                      for successor, action in successors)
+        max_val = max(value for value in values if not math.isnan(value[0]))
+        return random.choice([(successor, action) for successor, action in successors
+                              if max_val[0] == (1.0 * self.wins[successor] / self.plays[successor])])[1]
+
+        util.raiseNotDefined()
+
+    def run_simulation(self, state):
+        """
+        Simulates moves based on MCTS.
+        1) (Selection) While not at a leaf node, traverse tree using UCB1.
+        2) (Expansion) When reach a leaf node, expand.
+        4) (Simulation) Select random moves until terminal state is reached.
+        3) (Backpropapgation) Update all nodes visited in search tree with appropriate values.
+        * Remember to limit the depth of the search only in the expansion phase!
+        Updates values of appropriate states in search with with evaluation function.
+        """
+        "*** YOUR CODE HERE ***"
+        player = 0
+        visited_states = [(player, state)]
+        depth_limited = self.depth != -1
+        depth = self.depth
+        expand = True
+        while not visited_states[-1][1].isWin() and not visited_states[-1][1].isLose():
+            if depth_limited and depth == 0: break
+            state = self.UCB1(state, player)  # Selection & Simulation
+            if expand and state not in self.plays:  # Expansion
+                expand = False
+                self.plays[state] = 0
+                self.wins[state] = 0
+            visited_states.append((player, state))
+            player = (player + 1) % state.getNumAgents()
+            if not expand and depth_limited and player == 0: depth -= 1
+
+        for player, state in visited_states:
+            if state in self.plays:  # Not simulated nodes
+                self.plays[state] += 1
+                eval = self.evaluationFunction(visited_states[-1][1])
+                if depth_limited:
+                    if player == 0: self.wins[state] += eval
+                    if player != 0: self.wins[state] -= eval
+                else:
+                    if player == 0: self.wins[state] += eval
+                    if player != 0: self.wins[state] += (1 - eval)
+
+    def UCB1(self, state, player):
+        legal = state.getLegalActions(player)
+        successors = [state.generateSuccessor(player, action) for action in legal]
+        if all(successor in self.plays for successor in successors):
+            N = sum(self.plays[successor] for successor in successors)
+            return max(((1.0 * self.wins[successor] / self.plays[successor] +
+                         self.C * math.sqrt(math.log(N)) / self.plays[successor]),
+                        successor) for successor in successors)[1]
+        else:
+            return random.choice([s for s in successors if s not in self.plays])
+
+        #util.raiseNotDefined()
+
+    def final(self, state):
+        """
+        Called by Pacman game at the terminal state.
+        Updates search tree values of states that were visited during an actual game of pacman.
+        """
+        "*** YOUR CODE HERE ***"
+        return
+        util.raiseNotDefined()
+
+def mctsEvalFunction(state):
+    """
+    Evaluates state reached at the end of the expansion phase.
+    """
+    return 1 if state.isWin() else 0
 #https://github.com/lightninglu10/pacman-minimax/blob/master/multiAgents.py
 #score 6/6
 def betterEvaluationFunction(currentGameState):
@@ -540,6 +687,7 @@ def betterEvaluationFunction(currentGameState):
 
     return score
     util.raiseNotDefined()
+
 
 # Abbreviation
 better = betterEvaluationFunction
