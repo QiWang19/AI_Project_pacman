@@ -1,5 +1,6 @@
 # AI_Project_pacman  
-python pacman.py --frameTime 0 -p MinimaxAgent -a depth=3
+python pacman.py --frameTime 0 -p MinimaxAgent -a depth=3  
+
 python pacman.py --frameTime 0 -p AlphaBetaAgent -a depth=3 
 
 
